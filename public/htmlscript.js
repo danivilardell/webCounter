@@ -1,6 +1,6 @@
 let clientId = null;
 let counterId = null;
-let ws = new WebSocket("ws://https://sync-counter.herokuapp.com:8080")
+let socket = io();
 const btnCreate = document.getElementById("btnCreate");
 const btnJoin = document.getElementById("btnJoin");
 const txtCounterId = document.getElementById("txtCounterId");
@@ -16,7 +16,7 @@ btnCreate.addEventListener("click", e => {
     "clientId": clientId
   }
 
-  ws.send(JSON.stringify(payLoad));
+  socket.emit("create", JSON.stringify(payLoad));
 })
 
 btnJoin.addEventListener("click", e => {
@@ -29,7 +29,7 @@ btnJoin.addEventListener("click", e => {
     "counterId": counterId
   }
 
-  ws.send(JSON.stringify(payLoad));
+  socket.emit("join", JSON.stringify(payLoad));
 })
 
 btnUp.addEventListener("click", e => {
@@ -40,7 +40,7 @@ btnUp.addEventListener("click", e => {
     "counterId": counterId
   }
 
-  ws.send(JSON.stringify(payLoad));
+  socket.emit("updateValue", JSON.stringify(payLoad));
 })
 
 btnDown.addEventListener("click", e => {
@@ -51,10 +51,36 @@ btnDown.addEventListener("click", e => {
     "counterId": counterId
   }
 
-  ws.send(JSON.stringify(payLoad));
+  socket.emit("updateValue", JSON.stringify(payLoad));
 })
 
-ws.onmessage = message => {
+socket.on("connection", function(msg) {
+  const response = JSON.parse(msg);
+  clientId = response.clientId;
+  console.log("Client id Set successfully " + clientId)
+});
+
+socket.on("create", function(msg) {
+  const response = JSON.parse(msg);
+  counterId = response.counter.id;
+  console.log("Counter successfully created with id " + counterId);
+  counterIdHtml.innerHTML = "Counter ID: " + counterId;
+});
+
+socket.on("join", function(msg) {
+  const response = JSON.parse(msg);
+  counterId = response.counter.id;
+  console.log("Counter successfully joined with id " + counterId);
+  counterIdHtml.innerHTML = "Counter ID: " + counterId;
+});
+
+socket.on("updateValue", function(msg) {
+  const response = JSON.parse(msg);
+  counterValue.innerHTML = response.value;
+  console.log("Counter value updated with " + response.value);
+});
+
+/*socket.onmessage = message => {
   const response = JSON.parse(message.data);
   if(response.method === "connect") {
     clientId = response.clientId;
@@ -78,4 +104,4 @@ ws.onmessage = message => {
     console.log("Counter value updated with " + response.value);
   }
 
-}
+}*/

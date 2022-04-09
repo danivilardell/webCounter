@@ -6,97 +6,87 @@ var public = path.join(__dirname, 'public');
 app.get("/", (req,res)=> res.sendFile(__dirname + "/index.html"))
 app.use('/', express.static(public));
 
-//app.listen(process.env.PORT, ()=>console.log("Listening on http port 8081"))
-app.listen(process.env.PORT, ()=>console.log("Listening on http port 8081"))
-const websocketServer = require("websocket").server;
-const httpServer = http.createServer();
-httpServer.listen(8080, () => console.log("Listening on 8080"));
+const httpServer = http.createServer(app);
+const io = require('socket.io')(httpServer);
+httpServer.listen(process.env.PORT);
+//httpServer.listen(8080, () => console.log("Listening on " + 8080));
 
 const clients = {};
 const counters = {};
 
-const wsServer = new websocketServer({
-  "httpServer": httpServer
-})
+io.on("connection", (socket) => {
 
-wsServer.on("request", request => {
-  //connect
-  const connection = request.accept(null, request.origin);
-  connection.on("open",  () => console.log("Connection established"))
-  connection.on("close",  () => console.log("Connection closed"))
-  connection.on("message",  message => {
-    const result = JSON.parse(message.utf8Data);
-
-    if(result.method === "create") {
-      const clientId = result.clientId;
-      const counterId = guid();
-      counters[counterId] = {
-        "id": counterId,
-        "clients": [],
-        "value": 0
-      }
-
-      const payLoad = {
-        "method": "create",
-        "counter": counters[counterId]
-      }
-
-      const con = clients[clientId].connection;
-      con.send(JSON.stringify(payLoad));
+  socket.on("create", (msg) => {
+    const result = JSON.parse(msg);
+    const clientId = result.clientId;
+    const counterId = guid();
+    counters[counterId] = {
+      "id": counterId,
+      "clients": [],
+      "value": 0
     }
 
-    if(result.method === "join") {
-      const clientId = result.clientId;
-      const counterId = result.counterId;
-      const counter = counters[counterId];
-
-      counter.clients.push({
-        "clientId": clientId
-      })
-
-      const payLoad = {
-        "method": "join",
-        "counter": counter
-      }
-
-      counter.clients.forEach(c=>{
-        clients[c.clientId].connection.send(JSON.stringify(payLoad));
-      })
+    const payLoad = {
+      "method": "create",
+      "counter": counters[counterId]
     }
 
-    if(result.method === "up" || result.method === "down") {
-      const counterId = result.counterId;
-      const clientId = result.clientId;
+    const con = clients[clientId].connection;
+    con.emit("create", JSON.stringify(payLoad));
+  })
 
-      counter = counters[counterId];
-      if(result.method === "up") counter.value++;
-      else counter.value--;
+  socket.on("join", (msg) => {
+    const result = JSON.parse(msg);
+    const clientId = result.clientId;
+    const counterId = result.counterId;
+    const counter = counters[counterId];
 
-      const payLoad = {
-        "method": "updateValue",
-        "value": counter.value
-      }
+    counter.clients.push({
+      "clientId": clientId
+    })
 
-      counter.clients.forEach(c=>{
-        clients[c.clientId].connection.send(JSON.stringify(payLoad));
-      })
+    const payLoad = {
+      "method": "join",
+      "counter": counter
     }
-  });
 
-  //generate new unique clientId
+    counter.clients.forEach(c=>{
+      clients[c.clientId].connection.emit("join", JSON.stringify(payLoad));
+    })
+  })
+
+  socket.on("updateValue", (msg) => {
+    const result = JSON.parse(msg);
+    const counterId = result.counterId;
+    const clientId = result.clientId;
+
+    counter = counters[counterId];
+    if(result.method === "up") counter.value++;
+    else counter.value--;
+
+    const payLoad = {
+      "method": "updateValue",
+      "value": counter.value
+    }
+
+    counter.clients.forEach(c=>{
+      clients[c.clientId].connection.emit("updateValue", JSON.stringify(payLoad));
+    })
+  })
+
   const clientId = guid();
   clients[clientId] = {
-    "connection": connection
+    "connection": socket
   }
+  console.log("connection established with client " + clientId);
 
   const payLoad = {
     "method": "connect",
     "clientId": clientId
   }
   //Send back client connect
-  connection.send(JSON.stringify(payLoad))
-
-})
+  socket.emit("connection", JSON.stringify(payLoad));
+});
 
 // GUID generator
 function S4() {
