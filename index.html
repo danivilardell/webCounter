@@ -1,1 +1,98 @@
-Hola
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <h1>Counter</h1>
+  <button id = "btnCreate">New counter</button>
+  <button id = "btnJoin">Join counter</button>
+  <input type = "text" id = "txtCounterId">
+  <br>
+  <button id = "btnUp">up</button>
+  <a id = "counterValue"></a>
+  <button id = "btnDown">down</button>
+  <script>
+    let clientId = null;
+    let counterId = null;
+    let ws = new WebSocket("ws://localhost:8080")
+    const btnCreate = document.getElementById("btnCreate");
+    const btnJoin = document.getElementById("btnJoin");
+    const txtCounterId = document.getElementById("txtCounterId");
+    const btnUp = document.getElementById("btnUp");
+    const btnDown = document.getElementById("btnDown");
+    const counterValue = document.getElementById("counterValue");
+
+    btnCreate.addEventListener("click", e => {
+      counterValue.innerHTML = 0;
+      const payLoad = {
+        "method": "create",
+        "clientId": clientId
+      }
+
+      ws.send(JSON.stringify(payLoad));
+    })
+
+    btnJoin.addEventListener("click", e => {
+
+      if(counterId == null) counterId = txtCounterId.value;
+
+      const payLoad = {
+        "method": "join",
+        "clientId": clientId,
+        "counterId": counterId
+      }
+
+      ws.send(JSON.stringify(payLoad));
+    })
+
+    btnUp.addEventListener("click", e => {
+
+      const payLoad =  {
+        "method": "up",
+        "clientId": clientId,
+        "counterId": counterId
+      }
+
+      ws.send(JSON.stringify(payLoad));
+    })
+
+    btnDown.addEventListener("click", e => {
+
+      const payLoad =  {
+        "method": "down",
+        "clientId": clientId,
+        "counterId": counterId
+      }
+
+      ws.send(JSON.stringify(payLoad));
+    })
+
+    ws.onmessage = message => {
+      const response = JSON.parse(message.data);
+      if(response.method === "connect") {
+        clientId = response.clientId;
+        console.log("Client id Set successfully " + clientId)
+      }
+
+      if(response.method === "create") {
+        counterId = response.counter.id;
+        console.log("Counter successfully created with id " + counterId);
+      }
+
+      if(response.method === "join") {
+        counterId = response.counter.id;
+        console.log("Counter successfully joined with id " + counterId);
+      }
+
+      if(response.method === "updateValue") {
+        counterValue.innerHTML = response.value;
+        console.log("Counter value updated with " + response.value);
+      }
+
+    }
+  </script>
+</body>
+</html>
