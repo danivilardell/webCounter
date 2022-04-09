@@ -1,6 +1,6 @@
 let clientId = null;
 let counterId = null;
-let ws = new WebSocket("ws://localhost:8080")
+let ws = new WebSocket("ws://https://sync-counter.herokuapp.com:8080")
 const btnCreate = document.getElementById("btnCreate");
 const btnJoin = document.getElementById("btnJoin");
 const txtCounterId = document.getElementById("txtCounterId");
