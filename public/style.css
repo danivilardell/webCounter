@@ -31,3 +31,7 @@ button.changeValuebtn {
       color: #42526e;
   }
 }
+
+p.error {
+  color: red;
+}

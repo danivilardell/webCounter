@@ -8,6 +8,7 @@ const btnUp = document.getElementById("btnUp");
 const btnDown = document.getElementById("btnDown");
 const counterValue = document.getElementById("counterValue");
 const counterIdHtml = document.getElementById("counterId");
+const errorHtml = document.getElementById("error");
 
 btnCreate.addEventListener("click", e => {
   counterValue.innerHTML = 0;
@@ -80,28 +81,8 @@ socket.on("updateValue", function(msg) {
   console.log("Counter value updated with " + response.value);
 });
 
-/*socket.onmessage = message => {
-  const response = JSON.parse(message.data);
-  if(response.method === "connect") {
-    clientId = response.clientId;
-    console.log("Client id Set successfully " + clientId)
-  }
-
-  if(response.method === "create") {
-    counterId = response.counter.id;
-    console.log("Counter successfully created with id " + counterId);
-    counterIdHtml.innerHTML = "Counter ID: " + counterId;
-  }
-
-  if(response.method === "join") {
-    counterId = response.counter.id;
-    console.log("Counter successfully joined with id " + counterId);
-    counterIdHtml.innerHTML = "Counter ID: " + counterId;
-  }
-
-  if(response.method === "updateValue") {
-    counterValue.innerHTML = response.value;
-    console.log("Counter value updated with " + response.value);
-  }
-
-}*/
+socket.on("error", function(msg) {
+  const response = JSON.parse(msg);
+  errorHtml.innerHTML = response.msg;
+  setTimeout(function(){ errorHtml.innerHTML = "" }, 2000);
+})

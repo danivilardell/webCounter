@@ -38,20 +38,31 @@ io.on("connection", (socket) => {
     const result = JSON.parse(msg);
     const clientId = result.clientId;
     const counterId = result.counterId;
-    const counter = counters[counterId];
+    const counter = null;
+    if(counters[counterId] !== undefined) {
+      counter = counters[counterId];
+      counter.clients.push({
+        "clientId": clientId
+      })
 
-    counter.clients.push({
-      "clientId": clientId
-    })
+      const payLoad = {
+        "method": "join",
+        "counter": counter
+      }
 
-    const payLoad = {
-      "method": "join",
-      "counter": counter
+      counter.clients.forEach(c=>{
+        clients[c.clientId].connection.emit("join", JSON.stringify(payLoad));
+      })
+    }
+    else {
+      const payLoad = {
+        "method": "error",
+        "msg": "No counter with this ID found"
+      }
+      const con = clients[clientId].connection;
+      con.emit("error", JSON.stringify(payLoad));
     }
 
-    counter.clients.forEach(c=>{
-      clients[c.clientId].connection.emit("join", JSON.stringify(payLoad));
-    })
   })
 
   socket.on("updateValue", (msg) => {
