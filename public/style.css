@@ -17,11 +17,11 @@ button.changeValuebtn {
   transition: background 0.1s ease-out 0s, box-shadow 0.15s cubic-bezier(0.47, 0.03, 0.49, 1.38) 0s;
   background: #091e420a;
   cursor: pointer;
-  height: 100px;
+  height: 130px;
   line-height: 32px;
   padding: 0px 12px;
   vertical-align: middle;
-  width: 100px;
+  width: 130px;
   font-size: 100px;
   color: #42526e;
   :hover {

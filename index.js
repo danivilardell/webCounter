@@ -8,8 +8,8 @@ app.use('/', express.static(public));
 
 const httpServer = http.createServer(app);
 const io = require('socket.io')(httpServer);
-httpServer.listen(process.env.PORT);
-//httpServer.listen(8080, () => console.log("Listening on " + 8080));
+//httpServer.listen(process.env.PORT);
+httpServer.listen(8080, () => console.log("Listening on " + 8080));
 
 const clients = {};
 const counters = {};
