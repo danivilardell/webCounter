@@ -1,6 +1,10 @@
 const http = require("http");
-const app = require("express")();
+const express = require("express");
+var path = require('path');
+const app = express();
+var public = path.join(__dirname, 'public');
 app.get("/", (req,res)=> res.sendFile(__dirname + "/index.html"))
+app.use('/', express.static(public));
 
 app.listen(8081, ()=>console.log("Listening on http port 8081"))
 const websocketServer = require("websocket").server;
