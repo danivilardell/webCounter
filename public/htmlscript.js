@@ -45,7 +45,7 @@ function showButtonsCounter() {
 
 function showCopyCounterIdToClipboard(CounterId) {
   document.getElementById("counterIDAppear").innerHTML =
-    "<br><a>Click <a onclick='copyToClipboard(\"" + CounterId + "\")' style='color:blue'>here<a> to copy Counter Id to clipboard</a><br>";
+    "<a>Click <a onclick='copyToClipboard(\"" + CounterId + "\")' style='color:blue'>here<a> to copy Counter Id to clipboard</a><br>";
 }
 
 btnCreate.addEventListener("click", e => {
