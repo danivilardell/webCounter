@@ -43,9 +43,12 @@ function showButtonsCounter() {
 
 }
 
+function showCopyCounterIdToClipboard(CounterId) {
+  document.getElementById("counterIDAppear").innerHTML =
+    "<br><a>Click <a onclick='copyToClipboard(\"" + CounterId + "\")' style='color:blue'>here<a> to copy Counter Id to clipboard</a><br>";
+}
+
 btnCreate.addEventListener("click", e => {
-  showButtonsCounter();
-  counterValue.innerHTML = 0;
   const payLoad = {
     "method": "create",
     "clientId": clientId
@@ -55,7 +58,6 @@ btnCreate.addEventListener("click", e => {
 })
 
 btnJoin.addEventListener("click", e => {
-  showButtonsCounter();
   if(counterId == null) counterId = txtCounterId.value;
 
   const payLoad = {
@@ -67,8 +69,6 @@ btnJoin.addEventListener("click", e => {
   socket.emit("join", JSON.stringify(payLoad));
 })
 
-
-
 socket.on("connection", function(msg) {
   const response = JSON.parse(msg);
   clientId = response.clientId;
@@ -76,18 +76,25 @@ socket.on("connection", function(msg) {
 });
 
 socket.on("create", function(msg) {
+  showButtonsCounter();
+  counterValue.innerHTML = 0;
+
   const response = JSON.parse(msg);
   counterId = response.counter.id;
   console.log("Counter successfully created with id " + counterId);
-  counterIdHtml.innerHTML = "Counter ID: " + counterId;
+  hideCreateAndJoin();
+  showCopyCounterIdToClipboard(counterId);
 });
 
 socket.on("join", function(msg) {
   const response = JSON.parse(msg);
   counterId = response.counter.id;
+
+  showButtonsCounter();
   counterValue.innerHTML = response.counter.value;
   console.log("Counter successfully joined with id " + counterId);
-  counterIdHtml.innerHTML = "Counter ID: " + counterId;
+  hideCreateAndJoin()
+  showCopyCounterIdToClipboard(counterId);
 });
 
 socket.on("updateValue", function(msg) {
@@ -101,3 +108,19 @@ socket.on("error", function(msg) {
   errorHtml.innerHTML = response.msg;
   setTimeout(function(){ errorHtml.innerHTML = "" }, 2000);
 })
+
+function copyToClipboard(text) {
+  var input = document.body.appendChild(document.createElement("input"));
+  input.value = text;
+  input.focus();
+  input.select();
+  document.execCommand('copy');
+  input.parentNode.removeChild(input);
+  infoMessage.innerHTML = "Counter ID copied in the clipboard"
+  setTimeout(function(){ infoMessage.innerHTML = "" }, 2000);
+}
+
+function hideCreateAndJoin() {
+  document.getElementById("btnCreateAppear").innerHTML = "";
+  document.getElementById("btnJoinAppear").innerHTML = "";
+}

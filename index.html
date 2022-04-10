@@ -10,13 +10,15 @@
 <body>
   <center>
   <h1>Counter</h1>
-  <button id = "btnCreate">New counter</button>
-  <button id = "btnJoin">Join counter</button>
-  <input type = "text" id = "txtCounterId">
-  <br>
-  <p id = "counterId"></p>
-  <br>
+  <span id="btnCreateAppear"><button id = "btnCreate">New counter</button><br><br></span>
+  <span id="btnJoinAppear">
+    <button id = "btnJoin">Join counter</button>
+    <input type = "text" id = "txtCounterId" placeholder="Counter ID">
+    <br>
+  </span>
 
+  <span id="counterIDAppear"></span>
+    <p id = "infoMessage" class="error"></p>
     <span id="btnUpAppear"></span>
     <span id="counterValueApper"></span>
     <span id="btnDownAppear"></span>
