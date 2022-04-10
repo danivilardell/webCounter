@@ -25,22 +25,28 @@ io.on("connection", (socket) => {
       "value": 0
     }
 
+    let counter = counters[counterId];
+
+    counter.clients.push({
+      "clientId": clientId
+    })
+
     const payLoad = {
       "method": "create",
-      "counter": counters[counterId]
+      "counter": counter
     }
 
     const con = clients[clientId].connection;
     con.emit("create", JSON.stringify(payLoad));
+
   })
 
   socket.on("join", (msg) => {
     const result = JSON.parse(msg);
     const clientId = result.clientId;
     const counterId = result.counterId;
-    let counter = null;
     if(counters[counterId] !== undefined) {
-      counter = counters[counterId];
+      let counter = counters[counterId];
       counter.clients.push({
         "clientId": clientId
       })

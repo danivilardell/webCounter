@@ -4,13 +4,47 @@ let socket = io();
 const btnCreate = document.getElementById("btnCreate");
 const btnJoin = document.getElementById("btnJoin");
 const txtCounterId = document.getElementById("txtCounterId");
-const btnUp = document.getElementById("btnUp");
-const btnDown = document.getElementById("btnDown");
-const counterValue = document.getElementById("counterValue");
+let btnUp = null;
+let btnDown = null;
+let counterValue = null;
 const counterIdHtml = document.getElementById("counterId");
 const errorHtml = document.getElementById("error");
 
+function showButtonsCounter() {
+  document.getElementById("btnUpAppear").innerHTML = "<button id = 'btnUp' class='changeValuebtn'>▲</button>";
+  document.getElementById("counterValueApper").innerHTML = "<p id = 'counterValue' class='numberFont'>0</p>";
+  document.getElementById("btnDownAppear").innerHTML = "<button id = 'btnDown' class='changeValuebtn'>▼</button>";
+
+  btnUp = document.getElementById("btnUp");
+  btnDown = document.getElementById("btnDown");
+  counterValue = document.getElementById("counterValue");
+
+  btnUp.addEventListener("click", e => {
+
+    const payLoad =  {
+      "method": "up",
+      "clientId": clientId,
+      "counterId": counterId
+    }
+
+    socket.emit("updateValue", JSON.stringify(payLoad));
+  })
+
+  btnDown.addEventListener("click", e => {
+
+    const payLoad =  {
+      "method": "down",
+      "clientId": clientId,
+      "counterId": counterId
+    }
+
+    socket.emit("updateValue", JSON.stringify(payLoad));
+  })
+
+}
+
 btnCreate.addEventListener("click", e => {
+  showButtonsCounter();
   counterValue.innerHTML = 0;
   const payLoad = {
     "method": "create",
@@ -21,7 +55,7 @@ btnCreate.addEventListener("click", e => {
 })
 
 btnJoin.addEventListener("click", e => {
-
+  showButtonsCounter();
   if(counterId == null) counterId = txtCounterId.value;
 
   const payLoad = {
@@ -33,27 +67,7 @@ btnJoin.addEventListener("click", e => {
   socket.emit("join", JSON.stringify(payLoad));
 })
 
-btnUp.addEventListener("click", e => {
 
-  const payLoad =  {
-    "method": "up",
-    "clientId": clientId,
-    "counterId": counterId
-  }
-
-  socket.emit("updateValue", JSON.stringify(payLoad));
-})
-
-btnDown.addEventListener("click", e => {
-
-  const payLoad =  {
-    "method": "down",
-    "clientId": clientId,
-    "counterId": counterId
-  }
-
-  socket.emit("updateValue", JSON.stringify(payLoad));
-})
 
 socket.on("connection", function(msg) {
   const response = JSON.parse(msg);
@@ -71,6 +85,7 @@ socket.on("create", function(msg) {
 socket.on("join", function(msg) {
   const response = JSON.parse(msg);
   counterId = response.counter.id;
+  counterValue.innerHTML = response.counter.value;
   console.log("Counter successfully joined with id " + counterId);
   counterIdHtml.innerHTML = "Counter ID: " + counterId;
 });
