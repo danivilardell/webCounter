@@ -38,7 +38,7 @@ io.on("connection", (socket) => {
     const result = JSON.parse(msg);
     const clientId = result.clientId;
     const counterId = result.counterId;
-    const counter = null;
+    let counter = null;
     if(counters[counterId] !== undefined) {
       counter = counters[counterId];
       counter.clients.push({
