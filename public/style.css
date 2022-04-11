@@ -21,7 +21,7 @@ button.changeValuebtn {
   line-height: 32px;
   padding: 0px 12px;
   vertical-align: middle;
-  width: 130px;
+  width: 100%;
   font-size: 100px;
   color: #42526e;
   :hover {
